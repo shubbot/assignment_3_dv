@@ -76,7 +76,11 @@
 </head>
 <body>
   <div >
-    <h1>Sales Data Visualization</h1>
+    
+    <header class="bg-black text-white text-center mb-1 py-1">
+      <h2>Sales Data Visualization</h2>
+      <p class="lead m-0">Created by Shubham Chandra (2024EET2396)</p>
+    </header>
     
     <div class="controls">
       <label for="viewSelector">Select View:</label>
@@ -105,15 +109,16 @@
       <div id="vis-histogram" class="vis-cell">
         <div class="visualization-container"></div>
       </div>
-      <div id="vis-heatmap" class="vis-cell">
+      <!-- <div id="vis-heatmap" class="vis-cell">
         <div class="visualization-container"></div>
-      </div>
+      </div> -->
       <div id="vis-bar" class="vis-cell">
         <div class="visualization-container"></div>
-        <div id="vis-line" class="vis-cell"> </div><!-- New container for line chart -->
-          <div class="visualization-container"></div>
-        </div>
       </div>
+      <div id="vis-line" class="vis-cell"> <!-- New container for line chart -->
+          <div class="visualization-container"></div>
+      </div>
+      
     </div>
     
     <div class="footer">
