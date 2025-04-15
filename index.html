@@ -90,9 +90,9 @@
         <option value="Scatter Plot">Scatter Plot</option>
         <option value="Streamgraph">Streamgraph</option>
         <option value="Histogram">Histogram</option>
-        <option value="Heatmap">Heatmap</option>
+        <!-- <option value="Heatmap">Heatmap</option> -->
         <option value="Stacked Bar Chart">Stacked Bar Chart</option>
-        <option value="Line Chart">Monthly Sales by Region</option>
+        <option value="Line Chart">Line Chart</option>
       </select>
     </div>
     
@@ -352,42 +352,42 @@
       }
     };
 
-    // 5. Heatmap: Sales Rep Performance by Item
-    const heatmapSpec = {
-      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "data": dataSource,
-      "width": "container",
-      "height": "container",
-      "title": "Sales Rep Performance by Item (Total Sales)",
-      "mark": "rect",
-      "encoding": {
-        "x": {
-          "field": "Rep",
-          "type": "nominal",
-          "title": "Sales Representative"
-        },
-        "y": {"field": "Item", "type": "nominal", "title": "Product"},
-        "color": {
-          "field": "Total",
-          "aggregate": "sum",
-          "type": "quantitative",
-          "title": "Total Sales ($)",
-          "scale": {"scheme": "blues"}
-        },
-        "tooltip": [
-          {"field": "Rep", "type": "nominal"},
-          {"field": "Item", "type": "nominal"},
-          {"field": "Total", "aggregate": "sum", "format": "$.2f"}
-        ]
-      },
-      "view": {"stroke": null},
-      "config": {
-        "view": {"stroke": "transparent"},
-        "axis": {"labelFontSize": 11, "titleFontSize": 13},
-        "legend": {"labelFontSize": 11, "titleFontSize": 12},
-        "title": {"fontSize": 14, "fontWeight": "bold", "anchor": "middle"}
-      }
-    };
+    // // 5. Heatmap: Sales Rep Performance by Item
+    // const heatmapSpec = {
+    //   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    //   "data": dataSource,
+    //   "width": "container",
+    //   "height": "container",
+    //   "title": "Sales Rep Performance by Item (Total Sales)",
+    //   "mark": "rect",
+    //   "encoding": {
+    //     "x": {
+    //       "field": "Rep",
+    //       "type": "nominal",
+    //       "title": "Sales Representative"
+    //     },
+    //     "y": {"field": "Item", "type": "nominal", "title": "Product"},
+    //     "color": {
+    //       "field": "Total",
+    //       "aggregate": "sum",
+    //       "type": "quantitative",
+    //       "title": "Total Sales ($)",
+    //       "scale": {"scheme": "blues"}
+    //     },
+    //     "tooltip": [
+    //       {"field": "Rep", "type": "nominal"},
+    //       {"field": "Item", "type": "nominal"},
+    //       {"field": "Total", "aggregate": "sum", "format": "$.2f"}
+    //     ]
+    //   },
+    //   "view": {"stroke": null},
+    //   "config": {
+    //     "view": {"stroke": "transparent"},
+    //     "axis": {"labelFontSize": 11, "titleFontSize": 13},
+    //     "legend": {"labelFontSize": 11, "titleFontSize": 12},
+    //     "title": {"fontSize": 14, "fontWeight": "bold", "anchor": "middle"}
+    //   }
+    // };
 
     // 6. Stacked Bar Chart: Regional Sales by Item
     const stackedBarSpec = {
@@ -474,6 +474,35 @@
     };
 
     // Function to render/toggle visualizations based on selection
+    // Function to render/toggle visualizations based on selection
+    // function updateVisualization() {
+    //   const selectedView = document.getElementById('viewSelector').value;
+    //   const visualizationCells = {
+    //     'Donut Chart': document.getElementById('vis-donut'),
+    //     'Scatter Plot': document.getElementById('vis-scatter'),
+    //     'Streamgraph': document.getElementById('vis-stream'),
+    //     'Histogram': document.getElementById('vis-histogram'),
+    //     'Heatmap': document.getElementById('vis-heatmap'),
+    //     'Stacked Bar Chart': document.getElementById('vis-bar')
+    //   };
+      
+    //   // Show/hide appropriate visualizations
+    //   if (selectedView === 'All Views') {
+    //     // Show all visualizations
+    //     Object.values(visualizationCells).forEach(cell => {
+    //       cell.style.display = 'block';
+    //     });
+    //   } else {
+    //     // Hide all visualizations first
+    //     Object.values(visualizationCells).forEach(cell => {
+    //       cell.style.display = 'none';
+    //     });
+        
+    //     // Then show just the selected one
+    //     visualizationCells[selectedView].style.display = 'block';
+    //   }
+    // }
+
     function updateVisualization() {
       const selectedView = document.getElementById('viewSelector').value;
       const visualizationCells = {
@@ -481,7 +510,7 @@
         'Scatter Plot': document.getElementById('vis-scatter'),
         'Streamgraph': document.getElementById('vis-stream'),
         'Histogram': document.getElementById('vis-histogram'),
-        'Heatmap': document.getElementById('vis-heatmap'),
+        // 'Heatmap': document.getElementById('vis-heatmap'),
         'Stacked Bar Chart': document.getElementById('vis-bar'),
         'Line Chart': document.getElementById('vis-line')
       };
@@ -522,9 +551,9 @@
         actions: false
       });
       
-      vegaEmbed('#vis-heatmap .visualization-container', heatmapSpec, {
-        actions: false
-      });
+      // vegaEmbed('#vis-heatmap .visualization-container', heatmapSpec, {
+      //   actions: false
+      // });
       
       vegaEmbed('#vis-bar .visualization-container', stackedBarSpec, {
         actions: false
