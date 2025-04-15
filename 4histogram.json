@@ -1,0 +1,31 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "url": "https://raw.githubusercontent.com/shubbot/DataVisualisation/refs/heads/main/HW_III.csv"
+  },
+  "layer": [
+    {
+      "mark": {"type": "bar", "tooltip": true},
+      "encoding": {
+        "x": {"bin": {"maxbins": 20}, "field": "Units", "title": "Units"},
+        "y": {"aggregate": "count", "title": "Frequency"},
+        "color": {"value": "#4C78A8"}
+      }
+    },
+    {
+      "mark": {"type": "rule", "color": "red", "strokeWidth": 2},
+      "encoding": {
+        "x": {"aggregate": "mean", "field": "Units", "title": "Mean Units"},
+        "size": {"value": 2},
+        "tooltip": [
+          {
+            "field": "mean_Units",
+            "type": "quantitative",
+            "title": "Global Mean"
+          }
+        ]
+      }
+    }
+  ],
+  "config": {"view": {"stroke": "transparent"}, "axis": {"grid": false}}
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Units vs. Unit Cost: Highlighting Items by Sales Volume",
+    "fontSize": 14,
+    "anchor": "start"
+  },
+  "data": {
+    "url": "https://raw.githubusercontent.com/shubbot/DataVisualisation/refs/heads/main/HW_III.csv",
+    "format": {"type": "csv"},
+    "parse": {"OrderDate": "date:'%d-%m-%Y'", "Total": "number"}
+  },
+  "mark": {"type": "circle", "opacity": 0.7, "size": 100},
+  "encoding": {
+    "x": {
+      "field": "Units",
+      "type": "quantitative",
+      "title": "Units Sold",
+      "scale": {"domain": [0, 100]},
+      "axis": {"grid": true}
+    },
+    "y": {
+      "field": "Unit Cost",
+      "type": "quantitative",
+      "title": "Unit Cost ($)",
+      "scale": {"domain": [0, 300]},
+      "axis": {"grid": true}
+    },
+    "color": {
+      "condition": {
+        "selection": "brush",
+        "field": "Item",
+        "type": "nominal",
+        "scale": {"scheme": "dark2"},
+        "title": "Item"
+      },
+      "value": "lightgrey"
+    },
+    "size": {
+      "field": "Total",
+      "type": "quantitative",
+      "scale": {"range": [50, 300]},
+      "legend": {"title": "Total Sales ($)"}
+    },
+    "tooltip": [
+      {"field": "Item", "title": "Item"},
+      {"field": "Units", "title": "Units Sold"},
+      {"field": "Unit Cost", "title": "Unit Cost", "format": "$.2f"},
+      {"field": "Total", "title": "Total", "format": "$.2f"}
+    ]
+  },
+  "selection": {"brush": {"type": "interval", "encodings": ["x", "y"]}},
+  "width": 600,
+  "height": 400,
+  "background": "white",
+  "config": {"view": {"stroke": "transparent"}}
+}

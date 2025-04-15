@@ -1,0 +1,27 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Sales Rep Performance by Item (Total Sales)",
+  "data": {
+    "url": "https://raw.githubusercontent.com/shubbot/DataVisualisation/refs/heads/main/HW_III.csv"
+  },
+  "mark": "rect",
+  "encoding": {
+    "x": {"field": "Rep", "type": "nominal", "title": "Sales Representative"},
+    "y": {"field": "Item", "type": "nominal", "title": "Product"},
+    "color": {
+      "field": "Total",
+      "aggregate": "sum",
+      "type": "quantitative",
+      "title": "Total Sales ($)",
+      "scale": {"scheme": "blues"}
+    },
+    "tooltip": [
+      {"field": "Rep", "type": "nominal"},
+      {"field": "Item", "type": "nominal"},
+      {"field": "Total", "aggregate": "sum", "format": "$.2f"}
+    ]
+  },
+  "width": 500,
+  "height": 300,
+  "config": {"view": {"stroke": null}}
+}

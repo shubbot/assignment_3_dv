@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vega-Lite Sales Data Visualization</title>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .controls {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #f0f8ff;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+    }
+    select {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      margin-left: 10px;
+    }
+    label {
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .visualization-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.vis-cell {
+  flex: 1 1 calc(33% - 20px);
+  min-width: 300px;
+}
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+    }
+    .visualization-container {
+      width: 100%;
+      height: 100%;
+    }
+    #single-view {
+  display: none;
+  justify-content: center;
+  margin: 20px;
+}
+
+#single-chart {
+  width: 100%;
+  max-width: 900px; /* Optional, you can change this as needed */
+  height: 500px; /* Set a height to fit the chart */
+  margin: 0 auto;
+}
+
+  </style>
+</head>
+<body>
+  <div >
+    <h1>Sales Data Visualization</h1>
+    
+    <div class="controls">
+      <label for="viewSelector">Select View:</label>
+      <select id="viewSelector">
+        <option value="All Views">All Views</option>
+        <option value="Donut Chart">Donut Chart</option>
+        <option value="Scatter Plot">Scatter Plot</option>
+        <option value="Streamgraph">Streamgraph</option>
+        <option value="Histogram">Histogram</option>
+        <option value="Heatmap">Heatmap</option>
+        <option value="Stacked Bar Chart">Stacked Bar Chart</option>
+      </select>
+    </div>
+    
+    <div id="multi-view" class="visualization-grid">
+      <div id="vis-donut" class="center" >
+        <div class="visualization-container"></div>
+      </div>
+      <div id="vis-scatter" class="vis-cell">
+        <div class="visualization-container"></div>
+      </div>
+      <div id="vis-stream" class="vis-cell">
+        <div class="visualization-container"></div>
+      </div>
+      <div id="vis-histogram" class="vis-cell">
+        <div class="visualization-container"></div>
+      </div>
+      <div id="vis-heatmap" class="vis-cell">
+        <div class="visualization-container"></div>
+      </div>
+      <div id="vis-bar" class="vis-cell">
+        <div class="visualization-container"></div>
+      </div>
+    </div>
+
+    <div id="single-view" style="display: none;">
+        <div id="single-chart" class="visualization-container"></div>
+      </div>
+    
+    <div class="footer">
+      <p>ELL824 Special Topics in Information Processing – II: Visualization Assignment</p>
+    </div>
+  </div>
+
+  <script>
+    // Common data source and parsing for all visualizations
+    const dataSource = {
+      "url": "https://raw.githubusercontent.com/shubbot/DataVisualisation/refs/heads/main/HW_III.csv",
+      "format": {
+        "type": "csv",
+        "parse": {
+          "OrderDate": "date:'%d-%m-%Y'",
+          "Units": "number",
+          "Unit Cost": "number",
+          "Total": "number"
+        }
+      }
+    };
+
+    // 1. Donut Chart: Total Sales by Representative
+    const donutChartSpec = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "data": dataSource,
+      "width": "container",
+      "height": "container",
+      "title": "Donut Chart: Total Sales by Representative",
+      "transform": [
+        {
+          "aggregate": [{"op": "sum", "field": "Total", "as": "sum_Total"}],
+          "groupby": ["Rep"]
+        }
+      ],
+      "mark": {"type": "arc", "innerRadius": 50},
+      "encoding": {
+        "theta": {"field": "sum_Total", "type": "quantitative"},
+        "color": {
+          "field": "Rep",
+          "type": "nominal",
+          "scale": {"scheme": "tableau20"},
+          "legend": {"title": "Representative"}
+        },
+        "tooltip": [
+          {"field": "Rep", "type": "nominal", "title": "Representative"},
+          {
+            "field": "sum_Total",
+            "type": "quantitative",
+            "title": "Total Sales",
+            "format": "$.2f"
+          }
+        ]
+      },
+      "view": {"stroke": null},
+      "config": {
+        "view": {"stroke": "transparent"},
+        "axis": {"labelFontSize": 11, "titleFontSize": 13},
+        "legend": {"labelFontSize": 11, "titleFontSize": 12},
+        "title": {"fontSize": 14, "fontWeight": "bold", "anchor": "middle"}
+      }
+    };
+
+    // 2. Scatter Plot with Brush: Units vs Unit Cost
+    const scatterPlotSpec = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "data": dataSource,
+      "width": "container",
+      "height": "container",
+      "title": "Units vs. Unit Cost: Highlighting Items by Sales Volume",
+      "transform": [
+        {"calculate": "datum['Unit Cost']", "as": "UnitCost"}
+      ],
+      "mark": {"type": "circle", "opacity": 0.7},
+      "encoding": {
+        "x": {
+          "field": "Units",
+          "type": "quantitative",
+          "title": "Units Sold",
+          "scale": {"domain": [0, 100]},
+          "axis": {"grid": true}
+        },
+        "y": {
+          "field": "UnitCost",
+          "type": "quantitative",
+          "title": "Unit Cost ($)",
+          "scale": {"domain": [0, 300]},
+          "axis": {"grid": true}
+        },
+        "color": {
+          "condition": {
+            "param": "brush",
+            "field": "Item",
+            "type": "nominal",
+            "scale": {"scheme": "dark2"},
+            "title": "Item"
+          },
+          "value": "lightgrey"
+        },
+        "size": {
+          "field": "Total",
+          "type": "quantitative",
+          "scale": {"range": [50, 300]},
+          "legend": {"title": "Total Sales ($)"}
+        },
+        "tooltip": [
+          {"field": "Item", "title": "Item"},
+          {"field": "Units", "title": "Units Sold"},
+          {"field": "UnitCost", "title": "Unit Cost", "format": "$.2f"},
+          {"field": "Total", "title": "Total", "format": "$.2f"}
+        ]
+      },
+      "params": [
+        {
+          "name": "brush",
+          "select": {"type": "interval", "encodings": ["x", "y"]}
+        }
+      ],
+      "view": {"stroke": null},
+      "config": {
+        "view": {"stroke": "transparent"},
+        "axis": {"labelFontSize": 11, "titleFontSize": 13},
+        "legend": {"labelFontSize": 11, "titleFontSize": 12},
+        "title": {"fontSize": 14, "fontWeight": "bold", "anchor": "middle"}
+      }
+    };
+
+    // 3. Streamgraph: Total Sales Over Time by Item
+    const streamgraphSpec = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "data": dataSource,
+      "width": "container",
+      "height": "container",
+      "title": "Streamgraph: Total Sales Over Time by Item",
+      "transform": [
+        {"timeUnit": "yearmonth", "field": "OrderDate", "as": "YearMonth"}
+      ],
+      "mark": {"type": "area", "interpolate": "monotone"},
+      "encoding": {
+        "x": {
+          "field": "YearMonth",
+          "type": "temporal",
+          "axis": {"title": "Date", "format": "%b %Y", "labelAngle": -45}
+        },
+        "y": {
+          "field": "Total",
+          "type": "quantitative",
+          "stack": "center",
+          "axis": {"title": "Total Sales"}
+        },
+        "color": {
+  "field": "Item",
+  "type": "nominal",
+  "scale": {"scheme": "tableau20"},
+  "legend": {"title": "Item"}
+},
+        "opacity": {"value": 0.8},
+        "tooltip": [
+          {"field": "Item", "type": "nominal"},
+          {
+            "timeUnit": "yearmonth",
+            "field": "OrderDate",
+            "type": "temporal",
+            "title": "Month",
+            "format": "%b %Y"
+          },
+          {
+            "field": "Total",
+            "type": "quantitative",
+            "title": "Total Sales",
+            "format": "$.2f"
+          }
+        ]
+      },
+      "view": {"stroke": null},
+      "config": {
+        "view": {"stroke": "transparent"},
+        "axis": {"labelFontSize": 11, "titleFontSize": 13},
+        "legend": {"labelFontSize": 11, "titleFontSize": 12},
+        "title": {"fontSize": 14, "fontWeight": "bold", "anchor": "middle"}
+      }
+    };
+
+    // 4. Histogram of Units with Global Mean
+    const histogramSpec = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "data": dataSource,
+      "width": "container",
+      "height": "container",
+      "title": "Histogram of Units with Global Mean",
+      "layer": [
+        {
+          "mark": {"type": "bar", "tooltip": true},
+          "encoding": {
+            "x": {
+              "bin": {"maxbins": 20},
+              "field": "Units",
+              "title": "Units"
+            },
+            "y": {"aggregate": "count", "title": "Frequency"},
+            "color": {"value": "#4C78A8"}
+          }
+        },
+        {
+          "mark": {"type": "rule", "color": "red", "strokeWidth": 2},
+          "encoding": {
+            "x": {
+              "aggregate": "mean",
+              "field": "Units",
+              "title": "Mean Units"
+            },
+            "size": {"value": 2},
+            "tooltip": [
+              {
+                "aggregate": "mean",
+                "field": "Units",
+                "type": "quantitative",
+                "title": "Global Mean",
+                "format": ".1f"
+              }
+            ]
+          }
+        }
+      ],
+      "view": {"stroke": null},
+      "config": {
+        "view": {"stroke": "transparent"},
+        "axis": {"labelFontSize": 11, "titleFontSize": 13},
+        "legend": {"labelFontSize": 11, "titleFontSize": 12},
+        "title": {"fontSize": 14, "fontWeight": "bold", "anchor": "middle"}
+      }
+    };
+
+    // 5. Heatmap: Sales Rep Performance by Item
+    const heatmapSpec = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "data": dataSource,
+      "width": "container",
+      "height": "container",
+      "title": "Sales Rep Performance by Item (Total Sales)",
+      "mark": "rect",
+      "encoding": {
+        "x": {
+          "field": "Rep",
+          "type": "nominal",
+          "title": "Sales Representative"
+        },
+        "y": {"field": "Item", "type": "nominal", "title": "Product"},
+        "color": {
+          "field": "Total",
+          "aggregate": "sum",
+          "type": "quantitative",
+          "title": "Total Sales ($)",
+          "scale": {"scheme": "blues"}
+        },
+        "tooltip": [
+          {"field": "Rep", "type": "nominal"},
+          {"field": "Item", "type": "nominal"},
+          {"field": "Total", "aggregate": "sum", "format": "$.2f"}
+        ]
+      },
+      "view": {"stroke": null},
+      "config": {
+        "view": {"stroke": "transparent"},
+        "axis": {"labelFontSize": 11, "titleFontSize": 13},
+        "legend": {"labelFontSize": 11, "titleFontSize": 12},
+        "title": {"fontSize": 14, "fontWeight": "bold", "anchor": "middle"}
+      }
+    };
+
+    // 6. Stacked Bar Chart: Regional Sales by Item
+    const stackedBarSpec = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "data": dataSource,
+      "width": "container",
+      "height": "container",
+      "title": "Regional Sales Contribution by Item",
+      "mark": "bar",
+      "encoding": {
+        "x": {"field": "Item", "type": "nominal", "title": "Product"},
+        "y": {
+          "field": "Total",
+          "aggregate": "sum",
+          "type": "quantitative",
+          "title": "Total Sales ($)"
+        },
+        "color": {
+          "field": "Region",
+          "type": "nominal",
+          "title": "Region",
+          "scale": {"scheme": "set1"}
+        },
+        "tooltip": [
+          {"field": "Item", "type": "nominal"},
+          {"field": "Region", "type": "nominal"},
+          {"field": "Total", "aggregate": "sum", "format": "$.2f"}
+        ]
+      },
+      "view": {"stroke": null},
+      "config": {
+        "view": {"stroke": "transparent"},
+        "axis": {"labelFontSize": 11, "titleFontSize": 13},
+        "legend": {"labelFontSize": 11, "titleFontSize": 12},
+        "title": {"fontSize": 14, "fontWeight": "bold", "anchor": "middle"}
+      }
+    };
+
+    // Function to render/toggle visualizations based on selection
+    function updateVisualization() {
+  const selectedView = document.getElementById('viewSelector').value;
+  const multiViewContainer = document.getElementById('multi-view');
+  const singleViewContainer = document.getElementById('single-view');
+  const singleChartContainer = document.getElementById('single-chart');
+
+  const visualizationSpecs = {
+    'Donut Chart': donutChartSpec,
+    'Scatter Plot': scatterPlotSpec,
+    'Streamgraph': streamgraphSpec,
+    'Histogram': histogramSpec,
+    'Heatmap': heatmapSpec,
+    'Stacked Bar Chart': stackedBarSpec
+  };
+
+  if (selectedView === 'All Views') {
+    // Show multi-view, hide single-view
+    multiViewContainer.style.display = 'flex';
+    singleViewContainer.style.display = 'none';
+  } else {
+    // Show only the selected chart
+    multiViewContainer.style.display = 'none';
+    singleViewContainer.style.display = 'block';
+
+    // Get the selected chart spec
+    const selectedSpec = visualizationSpecs[selectedView];
+
+    // Embed the selected chart spec into the single-view container
+    vegaEmbed('#single-chart', selectedSpec, { actions: false }).then(function(result) {
+      // Optionally, you can perform further actions after the chart has been embedded.
+    }).catch(function(error) {
+      console.error("Error embedding visualization: ", error);
+    });
+  }
+}
+
+    // Initialize all visualizations
+    document.addEventListener('DOMContentLoaded', function() {
+      // Render each visualization in its container
+      vegaEmbed('#vis-donut .visualization-container', donutChartSpec, {
+        actions: false
+      });
+      
+      vegaEmbed('#vis-scatter .visualization-container', scatterPlotSpec, {
+        actions: false
+      });
+      
+      vegaEmbed('#vis-stream .visualization-container', streamgraphSpec, {
+        actions: false
+      });
+      
+      vegaEmbed('#vis-histogram .visualization-container', histogramSpec, {
+        actions: false
+      });
+      
+      vegaEmbed('#vis-heatmap .visualization-container', heatmapSpec, {
+        actions: false
+      });
+      
+      vegaEmbed('#vis-bar .visualization-container', stackedBarSpec, {
+        actions: false
+      });
+      
+      // Add event listener for dropdown
+      document.getElementById('viewSelector').addEventListener('change', updateVisualization);
+      
+      // Initial setup
+      updateVisualization();
+    });
+  </script>
+</body>
+</html>

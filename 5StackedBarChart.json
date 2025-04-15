@@ -1,0 +1,31 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "Regional Sales Contribution by Item",
+  "data": {
+    "url": "https://raw.githubusercontent.com/shubbot/DataVisualisation/refs/heads/main/HW_III.csv"
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {"field": "Item", "type": "nominal", "title": "Product"},
+    "y": {
+      "field": "Total",
+      "aggregate": "sum",
+      "type": "quantitative",
+      "title": "Total Sales ($)"
+    },
+    "color": {
+      "field": "Region",
+      "type": "nominal",
+      "title": "Region",
+      "scale": {"scheme": "category10"}
+    },
+    "tooltip": [
+      {"field": "Item", "type": "nominal"},
+      {"field": "Region", "type": "nominal"},
+      {"field": "Total", "aggregate": "sum", "format": "$.2f"}
+    ]
+  },
+  "width": 600,
+  "height": 400,
+  "config": {"view": {"stroke": null}}
+}

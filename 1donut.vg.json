@@ -1,0 +1,100 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v6.json",
+  "background": "white",
+  "padding": 5,
+  "width": 400,
+  "height": 300,
+  "title": {
+    "text": "Donut Chart: Total Sales by Representative",
+    "frame": "group"
+  },
+  "style": "view",
+  "encode": {"update": {"stroke": {"value": null}}},
+  "data": [
+    {
+      "name": "source_0",
+      "url": "https://raw.githubusercontent.com/shubbot/DataVisualisation/refs/heads/main/HW_III.csv",
+      "format": {"type": "csv", "delimiter": ","},
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": ["Rep"],
+          "ops": ["sum"],
+          "fields": ["Total"],
+          "as": ["sum_Total"]
+        },
+        {
+          "type": "stack",
+          "groupby": [],
+          "field": "sum_Total",
+          "sort": {"field": ["Rep"], "order": ["ascending"]},
+          "as": ["sum_Total_start", "sum_Total_end"],
+          "offset": "zero"
+        },
+        {
+          "type": "filter",
+          "expr": "isValid(datum[\"sum_Total\"]) && isFinite(+datum[\"sum_Total\"])"
+        }
+      ]
+    }
+  ],
+  "marks": [
+    {
+      "name": "marks",
+      "type": "arc",
+      "style": ["arc"],
+      "from": {"data": "source_0"},
+      "encode": {
+        "update": {
+          "innerRadius": {"value": 50},
+          "tooltip": {
+            "signal": "{\"Rep\": isValid(datum[\"Rep\"]) ? datum[\"Rep\"] : \"\"+datum[\"Rep\"], \"Total Sales\": format(datum[\"sum_Total\"], \"$.2f\")}"
+          },
+          "fill": {"scale": "color", "field": "Rep"},
+          "description": {
+            "signal": "\"Total Sales: \" + (format(datum[\"sum_Total\"], \"\")) + \"; Sales Representative: \" + (isValid(datum[\"Rep\"]) ? datum[\"Rep\"] : \"\"+datum[\"Rep\"]) + \"; Rep: \" + (isValid(datum[\"Rep\"]) ? datum[\"Rep\"] : \"\"+datum[\"Rep\"])"
+          },
+          "x": {"signal": "width", "mult": 0.5},
+          "y": {"signal": "height", "mult": 0.5},
+          "outerRadius": {"signal": "min(width,height)/2"},
+          "startAngle": {"scale": "theta", "field": "sum_Total_end"},
+          "endAngle": {"scale": "theta", "field": "sum_Total_start"}
+        }
+      }
+    }
+  ],
+  "scales": [
+    {
+      "name": "theta",
+      "type": "linear",
+      "domain": {
+        "data": "source_0",
+        "fields": ["sum_Total_start", "sum_Total_end"]
+      },
+      "range": [0, 6.283185307179586],
+      "zero": true
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "domain": [
+        "Andrews",
+        "Thompson",
+        "Gill",
+        "Howard",
+        "Jardine",
+        "Jones",
+        "Kivell",
+        "Morgan",
+        "Parent",
+        "Smith",
+        "Sorvino"
+      ],
+      "range": {"scheme": "tableau20"}
+    }
+  ],
+  "legends": [
+    {"title": "Representative", "fill": "color", "symbolType": "circle"}
+  ],
+  "config": {}
+}
